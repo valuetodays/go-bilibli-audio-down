@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/valuetodays/go-common/demo"
 	"go-bilibli-audio-down/bilibili_audio_parser"
 	"os/exec"
 	"strconv"
@@ -15,26 +14,31 @@ import (
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 
 func main() {
-	url := "https://www.bilibili_audio_parser.com/audio/au4401746"
-	var avid string
+	var url string
+	var auid string
 	// flag.BoolVar(p1,p2,p3,p4) 接受命令行参数(bool) p1:接受参数值的指针*bool p2:命令行参数名 p3:默认值(bool) p4:说明
 	// 命令行参数时可以 xxx.exe -user zhangsan -password=123456 有两种形式，但是当参数是bool型时，需要-xxx=false/true。
-	flag.StringVar(&avid, "avid", "", "编号")
+	flag.StringVar(&url, "url", "", "https://www.bilibili_audio_parser.com/audio/auxxxx")
+	flag.StringVar(&auid, "auid", "", "auxxxx")
 	flag.Parse()
-	avid = "4401746"
-	// https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=4401746
-	//http://www.bilibili.com/audio//**/music-service-c/web/url?sid=” ＋ AU_id
+	sid := bilibili_audio_parser.ParseSid(url, auid)
+	if sid == "" {
+		fmt.Println("Illegal url or auid, available command line arguments is below.")
+		flag.PrintDefaults()
+		return
+	}
+	// https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=4455115
 	fmt.Println("url=" + url)
-	fmt.Println("avid=" + avid)
-	fmt.Println("call other module: ", demo.Hello())
-	basicInfo := bilibili_audio_parser.ParseAudioBasicInfo(avid)
+	fmt.Println("auid=" + auid)
+	fmt.Println("sid=" + sid)
+	basicInfo := bilibili_audio_parser.ParseAudioBasicInfo(sid)
 	fmt.Println(basicInfo)
-	downloadInfo := bilibili_audio_parser.ParseAudioDownloadInfo(avid)
+	downloadInfo := bilibili_audio_parser.ParseAudioDownloadInfo(sid)
 	fmt.Println(downloadInfo)
 	cdns := downloadInfo.Cdns
 	if len(cdns) == 1 {
 		cdnUrl := cdns[0]
-		CurlDownloadFile(cdnUrl, "x:/" + avid + ".m4a", true, UA, "")
+		CurlDownloadFile(cdnUrl, "x:/" + sid + ".m4a", true, UA, "")
 	}
 	fmt.Println("done")
 }
@@ -59,13 +63,12 @@ func CurlDownloadFile(url string, localFile string, byteHeader bool, ua string, 
 		fmt.Printf("ReadAll failed, err: %v", err)
 	}
 	var cmdRespForFileLength = string(outputForFileLength)
-	fmt.Println("cmdRespForFileLength=" + cmdRespForFileLength)
+	//fmt.Println("cmdRespForFileLength=" + cmdRespForFileLength)
 	var fileInByte = 0
 	headerArr := strings.Split(cmdRespForFileLength, "\r\n")
 	for index := range headerArr {
 		headerLine := headerArr[index]
 		if strings.Contains(headerLine, "Content-Length: ") {
-			//replaced := strings.Replace(headerLine, "Content-Length:", "", -1)
 			suffix, found := strings.CutPrefix(headerLine, "Content-Length: ")
 			if found {
 				fileInByte, err = strconv.Atoi(suffix)
@@ -75,12 +78,14 @@ func CurlDownloadFile(url string, localFile string, byteHeader bool, ua string, 
 			}
 		}
 	}
-	fmt.Println("file length is " + strconv.Itoa(fileInByte) + " bytes, ~" + strconv.Itoa(fileInByte/1024/1204) + "M")
+	fmt.Println("file is " + strconv.Itoa(fileInByte) + " bytes, ~" + strconv.Itoa(fileInByte/1024/1204) + "M")
 	var commandArgsForFile = append(commandArgs, "-o", localFile)
 	fmt.Println("begin to download....")
 	commandForFile := exec.Command("curl", commandArgsForFile...)
 	err = commandForFile.Run()
 	if err != nil{
 		fmt.Print("error download", err)
+	} else {
+		fmt.Println("downloaded successfully....")
 	}
 }

@@ -1,2 +1,4 @@
+github.com/thinkeridea/go-extend v1.3.2 h1:0ZImRXpJc+wBNIrNEMbTuKwIvJ6eFoeuNAewvzONrI0=
+github.com/thinkeridea/go-extend v1.3.2/go.mod h1:xqN1e3y1PdVSij1VZp6iPKlO8I4jLbS8CUuTySj981g=
 github.com/valuetodays/go-common v0.0.16 h1:kDOb9q121kW6qtFnHlx7fSpc56/IxTB8EnK4Vv9KqMg=
 github.com/valuetodays/go-common v0.0.16/go.mod h1:CI+EDkFgzhrT0FL/k7UNf05nH8fAG3S671CWA0+6u78=

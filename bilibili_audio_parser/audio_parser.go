@@ -37,10 +37,10 @@ type AudioDownloadInfoData struct {
 	Qualities string  `json:"qualities"`
 }
 
-func ParseAudioBasicInfo(avid string) *AudioBasicInfoData {
+func ParseAudioBasicInfo(auid string) *AudioBasicInfoData {
 	audioBasicInfoR := AudioBasicInfoR{}
-	// https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=4401746
-	url := "https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=" + avid
+	// https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=4455115
+	url := "https://api.bilibili.com/audio/music-service-c/songs/playing?song_id=" + auid
 	DoGetJson(url, &audioBasicInfoR)
 	if audioBasicInfoR.Code != 0 {
 		fmt.Errorf("error code")
@@ -54,9 +54,9 @@ func ParseAudioBasicInfo(avid string) *AudioBasicInfoData {
 	return &data
 }
 
-func ParseAudioDownloadInfo(avid string) *AudioDownloadInfoData {
-	//https://www.bilibili.com/audio/music-service-c/web/url?sid=4401746
-	var url = "https://www.bilibili.com/audio/music-service-c/web/url?sid=" + avid
+func ParseAudioDownloadInfo(auid string) *AudioDownloadInfoData {
+	//https://www.bilibili.com/audio/music-service-c/web/url?sid=4455115
+	var url = "https://www.bilibili.com/audio/music-service-c/web/url?sid=" + auid
 	audioDownloadInfoR := AudioDownloadInfoR{}
 	DoGetJson(url, &audioDownloadInfoR)
 	data := audioDownloadInfoR.Data
